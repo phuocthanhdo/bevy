@@ -215,7 +215,6 @@ impl ParallelExecutor {
             let mut run = move || {
                 #[cfg(feature = "trace")]
                 let _system_guard = system_span.enter();
-                println!("Pre-run");
                 let instant = Instant::now();
                 // SAFETY: the executor prevents two systems with conflicting access from running simultaneously.
                 unsafe { system.run_unsafe((), world) };
