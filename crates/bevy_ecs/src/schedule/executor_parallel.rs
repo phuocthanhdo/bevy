@@ -8,6 +8,7 @@ use async_channel::{Receiver, Sender};
 use bevy_tasks::{ComputeTaskPool, Scope, TaskPool};
 #[cfg(feature = "trace")]
 use bevy_utils::tracing::Instrument;
+use bevy_utils::Instant;
 use event_listener::Event;
 use fixedbitset::FixedBitSet;
 
@@ -214,8 +215,14 @@ impl ParallelExecutor {
             let mut run = move || {
                 #[cfg(feature = "trace")]
                 let _system_guard = system_span.enter();
+                println!("Pre-run");
+                let instant = Instant::now();
                 // SAFETY: the executor prevents two systems with conflicting access from running simultaneously.
                 unsafe { system.run_unsafe((), world) };
+                let end = instant.elapsed();
+                if end.as_millis() > 1000 / 120 {
+                    println!("Post-run {} - {:?}", system.name(), end);
+                }
             };
 
             if can_start {
